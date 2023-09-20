@@ -1,10 +1,35 @@
 use std::fmt;
+use colored::Colorize;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum GameState {
     InProgress,
     Check,
-    GameOver
+    GameOver,
+    Checkmate
+}
+
+#[derive(Clone)]
+enum Colour {
+    White, Black
+}
+
+enum PieceType {
+    King, Queen, Bishop, Knight, Rook, Pawn
+}
+
+struct Piece {
+    colour: Colour,
+    piece_type: PieceType,
+}
+
+impl Piece {
+    fn new(colour: Colour, piece_type: PieceType) -> Self {
+        Piece {
+            colour,
+            piece_type,
+        }
+    }
 }
 
 /* IMPORTANT:
@@ -16,15 +41,57 @@ pub enum GameState {
 pub struct Game {
     /* save board, active colour, ... */
     state: GameState,
+    board: [Option<Piece>; 64],
+    active_colour: Colour,
     //...
 }
 
 impl Game {
     /// Initialises a new board with pieces.
     pub fn new() -> Game {
+        let mut start_board: [Option<Piece>; 64] = [
+            None, None, None, None, None, None, None, None, 
+            None, None, None, None, None, None, None, None, 
+            None, None, None, None, None, None, None, None, 
+            None, None, None, None, None, None, None, None, 
+            None, None, None, None, None, None, None, None, 
+            None, None, None, None, None, None, None, None, 
+            None, None, None, None, None, None, None, None, 
+            None, None, None, None, None, None, None, None, 
+        ];
+        
+
+        start_board[0] = Some(Piece::new(Colour::Black, PieceType::Rook));
+        start_board[1] = Some(Piece::new(Colour::Black, PieceType::Knight));
+        start_board[2] = Some(Piece::new(Colour::Black, PieceType::Bishop));
+        start_board[3] = Some(Piece::new(Colour::Black, PieceType::Queen));
+        start_board[4] = Some(Piece::new(Colour::Black, PieceType::King));
+        start_board[5] = Some(Piece::new(Colour::Black, PieceType::Bishop));
+        start_board[6] = Some(Piece::new(Colour::Black, PieceType::Knight));
+        start_board[7] = Some(Piece::new(Colour::Black, PieceType::Rook));
+
+        for i in 8..16 {
+            start_board[i] = Some(Piece::new(Colour::Black, PieceType::Pawn));
+        }
+
+        start_board[56] = Some(Piece::new(Colour::White, PieceType::Rook));
+        start_board[57] = Some(Piece::new(Colour::White, PieceType::Knight));
+        start_board[58] = Some(Piece::new(Colour::White, PieceType::Bishop));
+        start_board[59] = Some(Piece::new(Colour::White, PieceType::Queen));
+        start_board[60] = Some(Piece::new(Colour::White, PieceType::King));
+        start_board[61] = Some(Piece::new(Colour::White, PieceType::Bishop));
+        start_board[62] = Some(Piece::new(Colour::White, PieceType::Knight));
+        start_board[63] = Some(Piece::new(Colour::White, PieceType::Rook));
+
+        for i in 48..56 {
+            start_board[i] = Some(Piece::new(Colour::White, PieceType::Pawn));
+        }
+
         Game {
             /* initialise board, set active colour to white, ... */
             state: GameState::InProgress,
+            board: start_board,
+            active_colour: Colour::White,
             //...
         }
     }
@@ -71,7 +138,45 @@ impl fmt::Debug for Game {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         /* build board representation string */
         
-        write!(f, "")
+        let mut board_string = String::new();
+        let act_colour = match self.active_colour {
+            Colour::Black => "Black",
+            Colour::White => "White"
+        };
+        board_string.push('\n');
+        board_string.push_str(&format!("Active turn: {} \n", act_colour));
+
+        for rank in 0..8 {
+            for file in 0..8 {
+                let index = file + rank * 8;
+                if let Some(Piece) = &self.board[index] {
+                    let piece_str = match Piece.colour {
+                        Colour::Black => match Piece.piece_type {
+                            PieceType::King => "B♔ ",
+                            PieceType::Queen => "B♕ ",
+                            PieceType::Rook => "B♖ ",
+                            PieceType::Bishop => "B♗ ",
+                            PieceType::Knight => "B♘ ",
+                            PieceType::Pawn => "B♙ ",
+                        },
+                        Colour::White => match Piece.piece_type {
+                            PieceType::King => "W♚ ",
+                            PieceType::Queen => "W♛ ",
+                            PieceType::Rook => "W♜ ",
+                            PieceType::Bishop => "W♝ ",
+                            PieceType::Knight => "W♞ ",
+                            PieceType::Pawn => "W♟ ",
+                        },
+                    };
+                    board_string.push_str(&piece_str);
+                } else {
+                    board_string.push_str(" * ");
+                }
+            }
+            board_string.push('\n');
+        }
+
+        write!(f, "{}", board_string)
     }
 }
 
