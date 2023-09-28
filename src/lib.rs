@@ -348,7 +348,10 @@ impl Game {
                             if att_piece.colour != piece.colour {
                                 move_list.push(self.index_to_fr(self.step_real(pos_index, -1, 0).unwrap()).to_string());
                             }
-                        } else if self.step_real(pos_index, -1, 0).is_none() {
+                        } 
+                    }
+                    if self.step_real(pos_index, -1, 0).is_some() {
+                        if self.board[self.step_real(pos_index, -1, 0).unwrap()].is_none() {
                             move_list.push(self.index_to_fr(self.step_real(pos_index, -1, 0).unwrap()).to_string());
                         }
                     }
@@ -358,7 +361,10 @@ impl Game {
                             if att_piece.colour != piece.colour {
                                 move_list.push(self.index_to_fr(self.step_real(pos_index, -1, 1).unwrap()).to_string());
                             }
-                        } else if self.step_real(pos_index, -1, 1).is_none() {
+                        } 
+                    }
+                    if self.step_real(pos_index, -1, 1).is_some() {
+                        if self.board[self.step_real(pos_index, -1, 1).unwrap()].is_none() {
                             move_list.push(self.index_to_fr(self.step_real(pos_index, -1, 1).unwrap()).to_string());
                         }
                     }
@@ -368,7 +374,10 @@ impl Game {
                             if att_piece.colour != piece.colour {
                                 move_list.push(self.index_to_fr(self.step_real(pos_index, 0, 1).unwrap()).to_string());
                             }
-                        } else if self.step_real(pos_index, 0, 1).is_none() {
+                        } 
+                    }
+                    if self.step_real(pos_index, 0, 1).is_some() {
+                        if self.board[self.step_real(pos_index, 0, 1).unwrap()].is_none() {
                             move_list.push(self.index_to_fr(self.step_real(pos_index, 0, 1).unwrap()).to_string());
                         }
                     }
@@ -378,7 +387,10 @@ impl Game {
                             if att_piece.colour != piece.colour {
                                 move_list.push(self.index_to_fr(self.step_real(pos_index, 1, 1).unwrap()).to_string());
                             }
-                        } else if self.step_real(pos_index, 1, 1).is_none() {
+                        } 
+                    }
+                    if self.step_real(pos_index, 1, 1).is_some() {
+                        if self.board[self.step_real(pos_index, 1, 1).unwrap()].is_none() {
                             move_list.push(self.index_to_fr(self.step_real(pos_index, 1, 1).unwrap()).to_string());
                         }
                     }
@@ -388,7 +400,10 @@ impl Game {
                             if att_piece.colour != piece.colour {
                                 move_list.push(self.index_to_fr(self.step_real(pos_index, 1, 0).unwrap()).to_string());
                             }
-                        } else if self.step_real(pos_index, 1, 0).is_none() {
+                        } 
+                    }
+                    if self.step_real(pos_index, 1, 0).is_some() {
+                        if self.board[self.step_real(pos_index, 1, 0).unwrap()].is_none() {
                             move_list.push(self.index_to_fr(self.step_real(pos_index, 1, 0).unwrap()).to_string());
                         }
                     }
@@ -398,7 +413,10 @@ impl Game {
                             if att_piece.colour != piece.colour {
                                 move_list.push(self.index_to_fr(self.step_real(pos_index, 1, -1).unwrap()).to_string());
                             }
-                        } else if self.step_real(pos_index, 1, -1).is_none() {
+                        } 
+                    }
+                    if self.step_real(pos_index, 1, -1).is_some() {
+                        if self.board[self.step_real(pos_index, 1, -1).unwrap()].is_none() {
                             move_list.push(self.index_to_fr(self.step_real(pos_index, 1, -1).unwrap()).to_string());
                         }
                     }
@@ -408,7 +426,10 @@ impl Game {
                             if att_piece.colour != piece.colour {
                                 move_list.push(self.index_to_fr(self.step_real(pos_index, 0, -1).unwrap()).to_string());
                             }
-                        } else if self.step_real(pos_index, 0, -1).is_none() {
+                        } 
+                    }
+                    if self.step_real(pos_index, 0, -1).is_some() {
+                        if self.board[self.step_real(pos_index, 0, -1).unwrap()].is_none() {
                             move_list.push(self.index_to_fr(self.step_real(pos_index, 0, -1).unwrap()).to_string());
                         }
                     }
@@ -418,16 +439,291 @@ impl Game {
                             if att_piece.colour != piece.colour {
                                 move_list.push(self.index_to_fr(self.step_real(pos_index, -1, -1).unwrap()).to_string());
                             }
-                        } else if self.step_real(pos_index, -1, -1).is_none() {
+                        } 
+                    }
+                    if self.step_real(pos_index, -1, -1).is_some() {
+                        if self.board[self.step_real(pos_index, -1, -1).unwrap()].is_none() {
                             move_list.push(self.index_to_fr(self.step_real(pos_index, -1, -1).unwrap()).to_string());
                         }
                     }
                 },
-                PieceType::Queen => (),
-                PieceType::Rook => (),
-                PieceType::Bishop => (),
+                PieceType::Queen => {
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, i, i).is_some() {
+                            if self.board[self.step_real(pos_index, i, i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, i, i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, i, i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, i, i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, i, -i).is_some() {
+                            if self.board[self.step_real(pos_index, i, -i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, i, -i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, i, -i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, i, -i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, -i, i).is_some() {
+                            if self.board[self.step_real(pos_index, -i, i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, -i, i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, -i, i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, -i, i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, -i, -i).is_some() {
+                            if self.board[self.step_real(pos_index, -i, -i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, -i, -i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, -i, -i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, -i, -i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, i, 0).is_some() {
+                            if self.board[self.step_real(pos_index, i, 0).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, i, 0).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, i, 0).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, i, 0).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in (-8..=-1).rev() {
+                        if self.step_real(pos_index, i, 0).is_some() {
+                            if self.board[self.step_real(pos_index, i, 0).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, i, 0).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, i, 0).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, i, 0).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, 0, i).is_some() {
+                            if self.board[self.step_real(pos_index, 0, i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, 0, i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, 0, i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, 0, i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in (-8..=-1).rev() {
+                        if self.step_real(pos_index, 0, i).is_some() {
+                            if self.board[self.step_real(pos_index, 0, i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, 0, i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, 0, i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, 0, i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                },
+                PieceType::Rook => {
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, i, 0).is_some() {
+                            if self.board[self.step_real(pos_index, i, 0).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, i, 0).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, i, 0).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, i, 0).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in (-8..=-1).rev() {
+                        if self.step_real(pos_index, i, 0).is_some() {
+                            if self.board[self.step_real(pos_index, i, 0).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, i, 0).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, i, 0).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, i, 0).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, 0, i).is_some() {
+                            if self.board[self.step_real(pos_index, 0, i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, 0, i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, 0, i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, 0, i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in (-8..=-1).rev() {
+                        if self.step_real(pos_index, 0, i).is_some() {
+                            if self.board[self.step_real(pos_index, 0, i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, 0, i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, 0, i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, 0, i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                },
+                PieceType::Bishop => {
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, i, i).is_some() {
+                            if self.board[self.step_real(pos_index, i, i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, i, i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, i, i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, i, i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, i, -i).is_some() {
+                            if self.board[self.step_real(pos_index, i, -i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, i, -i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, i, -i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, i, -i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, -i, i).is_some() {
+                            if self.board[self.step_real(pos_index, -i, i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, -i, i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, -i, i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, -i, i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    for i in 1..=8 {
+                        if self.step_real(pos_index, -i, -i).is_some() {
+                            if self.board[self.step_real(pos_index, -i, -i).unwrap()].is_none() {
+                                move_list.push(self.index_to_fr(self.step_real(pos_index, -i, -i).unwrap()));
+                            } else if let Some(att_piece) = &self.board[self.step_real(pos_index, -i, -i).unwrap()] {
+                                if att_piece.colour != piece.colour {
+                                    move_list.push(self.index_to_fr(self.step_real(pos_index, -i, -i).unwrap()).to_string());
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                },
                 PieceType::Knight => {
-                    println!("test");
                     if self.step_real(pos_index, -2, -1).is_some() {
                         if let Some(att_piece) = &self.board[self.step_real(pos_index, -2, -1).unwrap()] {
                             if att_piece.colour != piece.colour {
@@ -588,7 +884,7 @@ impl fmt::Debug for Game {
         /* build board representation string */
         
         let board_string = self.get_board_rep_str();
-        println!("{:?}", self.get_possible_moves("g8"));
+        println!("{:?}", self.get_possible_moves("d1"));
         println!("{}", self.index_to_fr(62).to_string());
 
         write!(f, "{}", board_string)
