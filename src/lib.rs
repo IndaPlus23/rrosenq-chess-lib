@@ -1,5 +1,7 @@
-use std::{fmt, f32::consts::PI, num};
+use std::{fmt, f32::consts::PI, num, convert::Infallible};
 //use colored::Colorize;
+
+static mut CURR_LEGAL_MOVES: Vec<String> = vec![];
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum GameState {
@@ -9,12 +11,12 @@ pub enum GameState {
     Checkmate
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 enum Colour {
     White, Black
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 enum PieceType {
     King, Queen, Bishop, Knight, Rook, Pawn
 }
@@ -23,6 +25,16 @@ struct Piece {
     colour: Colour,
     piece_type: PieceType,
     two_step: u8,
+}
+
+impl Clone for Piece {
+    fn clone(&self) -> Self {
+        Piece {
+            colour: self.colour,
+            piece_type: self.piece_type,
+            two_step: self.two_step,
+        }
+    }
 }
 
 impl Piece {
@@ -41,6 +53,7 @@ impl Piece {
  * - Read the Rust documentation, ask questions if you get stuck!
  */
 
+#[derive(Clone)]
 pub struct Game {
     /* save board, active colour, ... */
     state: GameState,
@@ -104,6 +117,93 @@ impl Game {
     /// If the current game state is `InProgress` and the move is legal, 
     /// move a piece and return the resulting state of the game.
     pub fn make_move(&mut self, _from: &str, _to: &str) -> Option<GameState> {
+        let act_colour: Colour;
+        let n_act_colour: Colour;
+
+        match self.active_colour {
+            Colour::Black => {
+                act_colour = Colour::Black;
+                n_act_colour = Colour::White;
+            }
+            Colour::White => {
+                act_colour = Colour::White;
+                n_act_colour = Colour::Black;
+            }
+        }
+
+        if self.get_game_state() == GameState::InProgress {
+
+            let poss_moves = self.get_possible_moves(_from).unwrap();
+            if let Some(pp) = &self.board[self.fr_to_index(&_from)] {
+                if poss_moves.contains(&_to.to_string()) && pp.colour == act_colour {
+                    let from_index = self.fr_to_index(_from);
+                    let to_index = self.fr_to_index(_to);
+                    
+
+                    if let Some(piece) = self.board[from_index].take() {
+                        self.board[to_index] = Some(piece);
+                        self.board[from_index] = None;
+                    }
+
+                    if self.check_check(act_colour).is_none() {
+                        self.active_colour = n_act_colour;
+                        unsafe { CURR_LEGAL_MOVES = vec![] }
+                        return Some(GameState::InProgress);
+                    } else if self.check_check(act_colour).is_some() {
+                        if self.check_check(act_colour).unwrap().len() == 0 {
+                            return Some(GameState::Checkmate);
+                        } else {
+                            unsafe { CURR_LEGAL_MOVES = self.check_check(act_colour).unwrap() }
+                            self.active_colour = n_act_colour;
+                            return Some(GameState::Check);
+                        }
+                    }
+                } else {
+                    unsafe { CURR_LEGAL_MOVES = vec![] }
+                    return Some(GameState::InProgress);
+                }
+        }
+
+        } else if self.get_game_state() == GameState::Check {
+            let poss_moves = unsafe { &CURR_LEGAL_MOVES };
+
+            if let Some(pp) = &self.board[self.fr_to_index(&_from)] {
+                if poss_moves.contains(&_to.to_string()) && pp.colour == act_colour {
+
+                    let from_index = self.fr_to_index(_from);
+                    let to_index = self.fr_to_index(_to);
+
+                    if let Some(piece) = self.board[from_index].take() {
+                        self.board[to_index] = Some(piece);
+                        self.board[from_index] = None;
+                    }
+
+                    if self.check_check(act_colour).is_none() {
+                        self.active_colour = n_act_colour;
+                        unsafe { CURR_LEGAL_MOVES = vec![] }
+                        return Some(GameState::InProgress);
+                    } else if self.check_check(act_colour).is_some() {
+                        if self.check_check(act_colour).unwrap().len() == 0 {
+                            return Some(GameState::Checkmate);
+                        } else {
+                            unsafe { CURR_LEGAL_MOVES = self.check_check(act_colour).unwrap() }
+                            self.active_colour = n_act_colour;
+                            return Some(GameState::Check);
+                        }
+                    }
+
+                } else {
+                    return Some(GameState::Check);
+                }
+            }
+        } else if self.get_game_state() == GameState::Checkmate {
+            return Some(GameState::Checkmate);
+        }
+
+        Some(self.get_game_state())
+    }
+
+    fn make_move_nbs(&mut self, _from: &str, _to: &str) -> Option<GameState> {
         let mut gamestate = GameState::InProgress;
 
         if self.get_game_state() == GameState::InProgress {
@@ -132,12 +232,6 @@ impl Game {
                         n_act_colour = Colour::Black;
                     }
                 }
-
-                //find king loc
-                //find all poss moves 
-
-
-
                 return Some(gamestate);
             }
 
@@ -844,6 +938,7 @@ impl Game {
         };
         board_string.push('\n');
         board_string.push_str(&format!("Active turn: {} \n", act_colour));
+        board_string.push_str(&format!("Gamestate: {:?} \n", self.get_game_state()));
 
         for rank in 0..8 {
             for file in 0..8 {
@@ -876,13 +971,80 @@ impl Game {
         }
         board_string
     }
+
+    fn check_check (&self, lastturn: Colour) -> Option<Vec<String>> {
+
+        // None for InProgress, Vector with items for check with legal moves, empty Vector for Checkmate
+
+        let mut king_loc1: String = "a0".to_string();
+
+        let mut poss_moves1: Vec<String> = vec![];
+
+        let mut legal_moves: Vec<String> = vec![];
+
+        for i in 0..64 {
+            if let Some(piece) = &self.board[i] {
+                if piece.colour != lastturn {
+                    king_loc1 = self.index_to_fr(i);
+                    break;
+                }
+            }
+        }
+
+        for i in 0..64 {
+            if let Some(piece) = &self.board[i] {
+                if piece.colour == lastturn {
+                    poss_moves1.append(&mut self.get_possible_moves(&self.index_to_fr(i)).unwrap());
+                }
+            }
+        }
+
+        if poss_moves1.contains(&king_loc1) {
+            for i in 0..64 {
+                if let Some(piece) = &self.board[i] {
+                    if piece.colour != lastturn {
+                        let poss_moves2: Vec<String> = self.get_possible_moves(&self.index_to_fr(i)).unwrap();
+
+                        for y in poss_moves2 {
+                            let mut temp_game = self.clone();
+                            temp_game.make_move_nbs(&temp_game.index_to_fr(i), &y);
+
+                            let mut king_loc2: String = "a0".to_string();
+
+                            for h in 0..64 {
+                                if let Some(piece) = &temp_game.board[h] {
+                                    if piece.colour != lastturn {
+                                        king_loc2 = temp_game.index_to_fr(h);
+                                        break;
+                                    }
+                                }
+                            }
+
+                            for g in 0..64 {
+                                if let Some(piece2) = &temp_game.board[g] {
+                                    if piece2.colour == lastturn {
+                                        if !temp_game.get_possible_moves(&temp_game.index_to_fr(g)).unwrap().contains(&king_loc2) {
+                                            legal_moves.push(y.to_string());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return Some(legal_moves);
+        } else {
+            return None;
+        }
+    }
+
 }
 
 /// Implement print routine for Game.
 impl fmt::Debug for Game {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         /* build board representation string */
-        
         let board_string = self.get_board_rep_str();
         println!("{:?}", self.get_possible_moves("d1"));
         println!("{}", self.index_to_fr(62).to_string());
@@ -897,6 +1059,7 @@ impl fmt::Debug for Game {
 
 #[cfg(test)]
 mod tests {
+    use crate::CURR_LEGAL_MOVES;
     use crate::PieceType;
 
     use super::Game;
@@ -928,6 +1091,19 @@ mod tests {
             slay = true;
         }
         assert_eq!(slay, true);
+    }
+
+    #[test]
+    fn checkmatecheck() {
+        let mut game = Game::new();
+        let mut slay: bool = false;
+        game.make_move("f2", "f3");
+        game.make_move("e7", "e6");
+        game.make_move("g2", "g4");
+        game.make_move("d8", "h4");
+        println!("{}", game.get_board_rep_str());
+        println!("{:?}", unsafe {&CURR_LEGAL_MOVES});
+        assert_eq!(game.get_game_state(), GameState::Checkmate);
     }
 
     
